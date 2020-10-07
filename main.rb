@@ -1,18 +1,18 @@
-POSITIONS = ['N', 'E', 'S', 'W']
-MOVEMENTS = ['L', 'R', 'M']
+POSITIONS = ["N", "E", "S", "W"]
+MOVEMENTS = ["L", "R", "M"]
 
 def go_forward(probe)
   raise "Invalid position" if !POSITIONS.include? probe[2]
   
-  return [probe[0], (probe[1].to_i + 1).to_s, probe[2]] if probe[2] == 'N'
-  return [(probe[0].to_i + 1).to_s, probe[1], probe[2]] if probe[2] == 'E'
-  return [probe[0], (probe[1].to_i - 1).to_s, probe[2]] if probe[2] == 'S'
-  return [(probe[0].to_i - 1).to_s, probe[1], probe[2]] if probe[2] == 'W'
+  return [probe[0], (probe[1].to_i + 1).to_s, probe[2]] if probe[2] == "N"
+  return [(probe[0].to_i + 1).to_s, probe[1], probe[2]] if probe[2] == "E"
+  return [probe[0], (probe[1].to_i - 1).to_s, probe[2]] if probe[2] == "S"
+  return [(probe[0].to_i - 1).to_s, probe[1], probe[2]] if probe[2] == "W"
 end
 
 def rotate(probe, movement)
-  return [probe[0], probe[1], POSITIONS[(POSITIONS.index(probe[2]) + 1) % 4]] if movement == 'R'
-  return [probe[0], probe[1], POSITIONS[(POSITIONS.index(probe[2]) - 1) % 4]] if movement == 'L'
+  return [probe[0], probe[1], POSITIONS[(POSITIONS.index(probe[2]) + 1) % 4]] if movement == "R"
+  return [probe[0], probe[1], POSITIONS[(POSITIONS.index(probe[2]) - 1) % 4]] if movement == "L"
 end
 
 def move_probe(probe, edge, all_probes, index)
@@ -26,7 +26,7 @@ def move_probe(probe, edge, all_probes, index)
 
   movements.map do | movement |
     raise "Invalid movement" if !MOVEMENTS.include? movement
-    if (movement == 'M')
+    if (movement == "M")
       probe_init = go_forward(probe_init)
     else
       probe_init = rotate(probe_init, movement)
@@ -42,11 +42,22 @@ def move_probe(probe, edge, all_probes, index)
 end
 
 def get_file_input
-  if ARGV.length != 1
-    raise "Please input probes file name"
+  if ARGV.length != 2
+    raise "Please input and output probes file name"
   end
 
-  File.open(ARGV[0]).readlines.each { |line| line.chomp! }
+  file = File.open(ARGV[0])
+  
+  result = file.readlines.each { |line| line.chomp! }
+
+  file.close
+
+  result
+end
+
+def write_file_output(final_positions)
+  string_final_positions = final_positions.map { | position | position.join(" ") }
+  File.write(ARGV[1], string_final_positions.join("\n"), mode: "w")
 end
 
 def main
@@ -58,7 +69,7 @@ def main
   probes = probe_instructions.map do | probe_instruction |
     [
       probe_instruction[0].split,
-      probe_instruction[1].split('')
+      probe_instruction[1].split("")
     ]
   end
 
@@ -68,7 +79,7 @@ def main
     move_probe(probe, edge, all_probes, index)
   end
 
-  print final_positions
+  write_file_output final_positions
 end
 
 main
